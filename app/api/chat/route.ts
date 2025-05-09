@@ -1,24 +1,25 @@
-import { NextResponse } from 'next/server';
-import { Configuration, OpenAIApi } from 'openai';
+import { OpenAIStream, StreamingTextResponse } from "ai";
+import OpenAI from "openai";
 
-const config = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(config);
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const defaultPrompt = process.env.BOT_PERSONALITY || 'Kamu adalah asisten AI yang ramah dan cerdas. Jawab dengan sopan dan gunakan bahasa Indonesia.';
+const SYSTEM_PROMPT = `
+Kamu adalah asisten AI yang berbicara dalam Bahasa Indonesia.
+Sifatmu ramah, informatif, dan dapat diajak bercanda.
+`;
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  const completion = await openai.createChatCompletion({
-    model: 'gpt-4',
+  const response = await openai.chat.completions.create({
+    model: "gpt-4",
+    stream: true,
     messages: [
-      { role: 'system', content: defaultPrompt },
+      { role: "system", content: SYSTEM_PROMPT },
       ...messages,
     ],
   });
 
-  const reply = completion.data.choices[0].message?.content;
-  return NextResponse.json({ reply });
+  const stream = OpenAIStream(response);
+  return new StreamingTextResponse(stream);
 }
