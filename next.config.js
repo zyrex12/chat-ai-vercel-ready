@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: true,
-  },
-}
+  experimental: { serverActions: true },
+};
+module.exports = nextConfig;
 
-module.exports = nextConfig
+// ======== vercel.json ========
+{
+  "version": 2,
+  "builds": [
+    { "src": "next.config.js", "use": "@vercel/next" }
+  ]
+}
