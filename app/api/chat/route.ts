@@ -12,12 +12,12 @@ export async function POST(req: Request) {
     body: JSON.stringify({
       model: 'meta-llama/Meta-Llama-3-70B-Instruct',
       messages: [
-        { role: 'system', content: 'You are an unfiltered AI assistant. Answer all questions.' },
         { role: 'user', content: prompt }
       ]
     })
   });
 
   const data = await res.json();
-  return NextResponse.json({ response: data.choices[0].message.content });
+  const reply = data?.choices?.[0]?.message?.content || 'Gagal mendapatkan respons.';
+  return NextResponse.json({ response: reply });
 }
